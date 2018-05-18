@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  redis:
+    image: 'redis'
+    command: redis-server --requirepass devpassword
+    volumes:
+      - 'redis:/data'
+    ports:
+      - '6379:6379' 
+  website:
+    build: .
+    command: >
+      gunicorn -b 0.0.0.0:8000
+        --access-logfile -
+        --reload
+        "app:app"
+    volumes:
+      - '.:/opt/app'
+    ports:
+      - '8000:8000'
+  celery:
+    build: .
+    command: celery -A app.celery worker
+    volumes:
+      - '.:/opt/app'
+
+volumes:
+  redis:
+    
